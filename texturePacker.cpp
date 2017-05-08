@@ -11,27 +11,17 @@ void texturePacker::createImage(packNode *node, sf::Image &packed)
             }
         else if (node->m_texture)
             {
-                sf::Vector2u pos = node->m_position;
-                sf::Vector2u size = node->m_texture->getSize();
-
-                sf::Image textureImage = node->m_texture->copyToImage();
-
-                for (unsigned int i = 0; i < size.x; i++)
-                    {
-                        for (unsigned int j = 0; j < size.y; j++)
-                            {
-                                packed.setPixel(i + pos.x, j + pos.y, textureImage.getPixel(i, j));
-                            }
-                    }
+                packed.copy(node->m_texture->copyToImage(), node->m_position.x, node->m_position.y);
+            }
+        else
+            {
+                int i = 0;
             }
     }
 
-texturePacker::texturePacker() : m_needsUpdate(false)
+texturePacker::texturePacker(sf::Vector2u textureSize) : m_needsUpdate(false), m_baseNode(0, 0, textureSize.x, textureSize.y)
     {
-        sf::Vector2u size(2048, 2048);
-
-        m_baseNode.m_size = size;
-        m_packedTexture.create(size.x, size.y);
+        m_packedTexture.create(textureSize.x, textureSize.y);
     }
 
 sf::Vector2u texturePacker::addTexture(sf::Texture *texture)
@@ -39,7 +29,6 @@ sf::Vector2u texturePacker::addTexture(sf::Texture *texture)
         packNode *ret = m_baseNode.insert(texture);
         if (ret) 
             {
-                ret->m_texture = texture;
                 m_needsUpdate = true;
                 return ret->m_position;
             }
@@ -67,14 +56,17 @@ texturePacker::~texturePacker()
         m_baseNode.clear();
     }
 
-texturePacker::packNode::packNode()
+texturePacker::packNode::packNode(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
     {
         m_child[0] = nullptr;
         m_child[1] = nullptr;
         m_texture = nullptr;
+
+        m_position = sf::Vector2u(x, y);
+        m_size = sf::Vector2u(width, height);
     }
 
-texturePacker::packNode *texturePacker::packNode::insert(const sf::Texture *texture)
+texturePacker::packNode *texturePacker::packNode::insert(sf::Texture *texture)
     {
         if (m_child[0]) // if we are a branch we will have atleast 1 child
             {
@@ -93,33 +85,42 @@ texturePacker::packNode *texturePacker::packNode::insert(const sf::Texture *text
                     {
                         return nullptr;
                     }
-                // if we are the perfect size, we dont need children
-                else if (texture->getSize().x == m_size.x || texture->getSize().y == m_size.y)
+                // if we are the perfect size, that means we just generated this as the node that holds the texture
+                else if (texture->getSize().x == m_size.x && texture->getSize().y == m_size.y)
                     {
+                        m_texture = texture;
                         return this;
                     }
-
-                m_child[0] = new packNode;
-                m_child[1] = new packNode;
 
                 float dWidth = m_size.x - texture->getSize().x;
                 float dHeight = m_size.y - texture->getSize().y;
 
                 if (dWidth > dHeight)
                     {
-                        m_child[0]->m_position = m_position;
-                        m_child[0]->m_size = sf::Vector2u(texture->getSize().x, m_size.y);
+                        // packing into columns > ||
+                        m_child[0] = new packNode(m_position.x,
+                                                  m_position.y,
+                                                  texture->getSize().x,
+                                                  m_size.y);
 
-                        m_child[1]->m_position = sf::Vector2u(m_position.x + texture->getSize().x, m_position.y);
-                        m_child[1]->m_size = sf::Vector2u(m_size.x - texture->getSize().x, m_size.y);
+
+                        m_child[1] = new packNode(m_position.x + texture->getSize().x,
+                                                  m_position.y,
+                                                  m_size.x - texture->getSize().x,
+                                                  m_size.y);
                     }
                 else
                     {
-                        m_child[0]->m_position = m_position;
-                        m_child[0]->m_size = sf::Vector2u(m_size.x, texture->getSize().y);
+                        // packing into rows > =
+                        m_child[0] = new packNode(m_position.x,
+                                                  m_position.y,
+                                                  m_size.x,
+                                                  texture->getSize().y);
 
-                        m_child[1]->m_position = sf::Vector2u(m_position.x, m_position.y + texture->getSize().y);
-                        m_child[1]->m_size = sf::Vector2u(m_size.x, m_size.y - texture->getSize().y);
+                        m_child[1] = new packNode(m_position.x,
+                                                  m_position.y + texture->getSize().y,
+                                                  m_size.x,
+                                                  m_size.y - texture->getSize().y);
                     }
 
                 return m_child[0]->insert(texture);

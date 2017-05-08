@@ -17,8 +17,58 @@ int main()
         b.loadFromFile("test2.bmp");
         c.loadFromFile("test3.bmp");
 
+        pack.addTexture(&c);
+
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
 
 
-        pack.getTexture().copyToImage().saveToFile("image.jpg");
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&b);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+        pack.addTexture(&a);
+
+        pack.getTexture().copyToImage().saveToFile("image.bmp");
         return 0;
     }
