@@ -1,26 +1,38 @@
 // texturePacker.hpp
 // a texture packer. Takes input textures, appends them to an output one and returns a data package
 #pragma once
-#include <vector>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
 
 class texturePacker
     {
         private:
-            std::vector<sf::Texture*> m_packedTextures;
-            sf::Texture m_outTexture;
-            sf::Vector2u m_maxSize;
+            struct packNode
+                {
+                    packNode *m_child[2];
+                    sf::Texture *m_texture;
 
-            unsigned int m_itemCount;
-            const unsigned int m_maxItemsY;
+                    sf::Vector2u m_position;
+                    sf::Vector2u m_size;
+                    
 
+                    packNode();
+                    packNode *insert(const sf::Texture *texture);
+                    void clear();
+
+                } m_baseNode;
+
+            sf::Texture m_packedTexture;
             bool m_needsUpdate;
+
+            void createImage(packNode *node, sf::Image &packed);
 
         public:
             texturePacker();
 
-            void addTexture(sf::Texture *texture);
+            sf::Vector2u addTexture(sf::Texture *texture);
             const sf::Texture &getTexture();
+
+            ~texturePacker();
 
     };

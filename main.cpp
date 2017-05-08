@@ -2,24 +2,23 @@
 // a custom dynamic texture packing algorithm in order to use it for sprite batches
 #include "texturePacker.hpp"
 #include <SFML/Graphics/Image.hpp>
+#include <chrono>
+#include <iostream>
 
 int main()
     {
         texturePacker pack;
 
         sf::Texture a;
-        a.loadFromFile("test1.bmp");
-
         sf::Texture b;
-        b.loadFromFile("test2.bmp");
-
         sf::Texture c;
+
+        a.loadFromFile("test1.bmp");       
+        b.loadFromFile("test2.bmp");
         c.loadFromFile("test3.bmp");
 
-        pack.addTexture(&a);
-        pack.addTexture(&b);
-        pack.addTexture(&c);
 
-        pack.getTexture().copyToImage().saveToFile("image.png");
+
+        pack.getTexture().copyToImage().saveToFile("image.jpg");
         return 0;
     }
